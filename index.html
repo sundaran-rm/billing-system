@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Billing Made Easy</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-elevated: #151b2f;
+      --accent: #ff6b3d;
+      --accent-soft: rgba(255, 107, 61, 0.15);
+      --text: #f4f6ff;
+      --text-muted: #9aa0c6;
+      --border: #262c46;
+      --error: #ff4d6a;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.45);
+      --shadow-chip: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1b2342 0, #050713 55%, #010108 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .billing-app {
+      width: 100%;
+      max-width: 860px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(8, 10, 30, 0.9));
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 26px 26px;
+      backdrop-filter: blur(24px);
+    }
+
+    .billing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 12px;
+    }
+
+    .billing-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .billing-orbit {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffe3d6 0, #ff6b3d 40%, #ff006e 100%);
+      box-shadow: 0 0 0 2px rgba(255, 107, 61, 0.45), 0 0 26px rgba(255, 107, 61, 0.85);
+      position: relative;
+    }
+
+    .billing-orbit::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .billing-header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: 0.03em;
+    }
+
+    .billing-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: rgba(9, 12, 35, 0.9);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .stat-value {
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-highlight {
+      color: var(--accent);
+    }
+
+    .billing-input-row {
+      display: grid;
+      grid-template-columns: 2.4fr 1fr 0.8fr 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border-radius: var(--radius-md);
+      background: rgba(8, 11, 30, 0.85);
+      border: 1px solid var(--border);
+    }
+
+    .billing-input-group label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .billing-input-group input[type="text"],
+    .billing-input-group input[type="number"] {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(2, 4, 20, 0.9);
+      color: var(--text);
+      font-size: 0.83rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .billing-input-group input[type="number"]::-webkit-outer-spin-button,
+    .billing-input-group input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .billing-input-group input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .billing-input-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255, 107, 61, 0.35);
+      background: rgba(8, 11, 34, 0.95);
+    }
+
+    .billing-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff6b3d, #ff4b7d);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(255, 107, 61, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(255, 107, 61, 0.55);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(255, 107, 61, 0.4);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+      font-size: 0.82rem;
+      background: rgba(4, 7, 24, 0.95);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      table-layout: fixed;
+    }
+
+    colgroup col:nth-child(1)  { width: 7%; }
+    colgroup col:nth-child(2)  { width: 33%; }
+    colgroup col:nth-child(3)  { width: 12%; }
+    colgroup col:nth-child(4)  { width: 10%; }
+    colgroup col:nth-child(5)  { width: 12%; }
+    colgroup col:nth-child(6)  { width: 16%; }
+    colgroup col:nth-child(7)  { width: 10%; }
+
+    thead {
+      background: linear-gradient(90deg, rgba(255, 107, 61, 0.18), rgba(255, 107, 61, 0));
+    }
+
+    th,
+    td {
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    th {
+      font-weight: 500;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    td {
+      text-align: left;
+    }
+
+    .cell-number {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      box-shadow: var(--shadow-chip);
+    }
+
+    .badge-delete {
+      color: #ff4d6a;
+      background: rgba(255, 77, 106, 0.1);
+      border: 1px solid rgba(255, 77, 106, 0.5);
+      cursor: pointer;
+    }
+
+    .badge-delete:hover {
+      background: rgba(255, 77, 106, 0.2);
+    }
+
+    .billing-footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    .billing-footer span {
+      opacity: 0.85;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--accent);
+      margin-right: 4px;
+    }
+
+    @media (max-width: 720px) {
+      .billing-app {
+        padding: 16px 14px 18px;
+      }
+
+      .billing-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .billing-input-row {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .billing-actions {
+        justify-content: flex-start;
+      }
+
+      table {
+        font-size: 0.78rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .billing-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="billing-app">
+    <div class="billing-header">
+      <div class="billing-title">
+        <div class="billing-orbit"></div>
+        <h1>Billing Made Easy</h1>
+      </div>
+    </div>
+
+    <div class="billing-stats">
+      <div class="stat-card">
+        <div class="stat-label">Item total</div>
+        <div class="stat-value">$<span id="itemTotal">0.00</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tax total</div>
+        <div class="stat-value stat-highlight">$<span id="taxTotal">0.00</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Grand total</div>
+        <div class="stat-value">$<span id="grandTotal">0.00</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Items count</div>
+        <div class="stat-value"><span id="itemsCount">0</span></div>
+      </div>
+    </div>
+
+    <div class="billing-input-row">
+      <div class="billing-input-group">
+        <label for="itemName">Item name</label>
+        <input id="itemName" type="text" aria-label="Item name">
+      </div>
+      <div class="billing-input-group">
+        <label for="itemCost">Cost</label>
+        <input id="itemCost" type="number" min="0" step="0.01" aria-label="Cost">
+      </div>
+      <div class="billing-input-group">
+        <label for="itemQty">Qty</label>
+        <input id="itemQty" type="number" min="1" value="1" step="1" aria-label="Qty">
+      </div>
+      <div class="billing-input-group">
+        <label for="itemTax">Tax %</label>
+        <input id="itemTax" type="number" min="0" value="2" step="0.01" aria-label="Tax %">
+      </div>
+      <div class="billing-actions">
+        <button id="addItemBtn" class="btn btn-primary">Add Item</button>
+        <button id="deleteLastBtn" class="btn btn-ghost">Delete Last</button>
+      </div>
+    </div>
+
+    <table>
+      <colgroup>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+      </colgroup>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item name</th>
+          <th class="cell-number">Cost</th>
+          <th class="cell-number">Qty</th>
+          <th class="cell-number">Tax %</th>
+          <th class="cell-number">Line total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody">
+      </tbody>
+    </table>
+
+    <div class="billing-footer">
+      <span><span class="dot"></span>Billing Made Easy © </span>
+      <span>Click a cell to Edit. Delete key removes last.</span>
+    </div>
+  </div>
+
+  <script>
+    const itemNameEl = document.getElementById('itemName');
+    const itemCostEl = document.getElementById('itemCost');
+    const itemQtyEl = document.getElementById('itemQty');
+    const itemTaxEl = document.getElementById('itemTax');
+    const itemsBodyEl = document.getElementById('itemsBody');
+
+    const itemTotalEl = document.getElementById('itemTotal');
+    const taxTotalEl = document.getElementById('taxTotal');
+    const grandTotalEl = document.getElementById('grandTotal');
+    const itemsCountEl = document.getElementById('itemsCount');
+
+    const addItemBtn = document.getElementById('addItemBtn');
+    const deleteLastBtn = document.getElementById('deleteLastBtn');
+
+    let items = [];
+
+    function formatAmount(value) {
+      return value.toFixed(2);
+    }
+
+    function renderItems() {
+      itemsBodyEl.innerHTML = '';
+      let itemTotal = 0;
+      let taxTotal = 0;
+      let grandTotal = 0;
+
+      items.forEach((item, index) => {
+        const base = item.cost * item.qty;
+        const tax = base * (item.tax / 100);
+        const lineTotal = base + tax;
+
+        itemTotal += base;
+        taxTotal += tax;
+        grandTotal += lineTotal;
+
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td class="editable" data-field="name" data-index="${index}">${item.name || '-'}</td>
+          <td class="cell-number editable" data-field="cost" data-index="${index}">${formatAmount(item.cost)}</td>
+          <td class="cell-number editable" data-field="qty" data-index="${index}">${item.qty}</td>
+          <td class="cell-number editable" data-field="tax" data-index="${index}">${formatAmount(item.tax)}</td>
+          <td class="cell-number">${formatAmount(lineTotal)}</td>
+          <td>
+            <span class="chip badge-delete" data-index="${index}">Delete</span>
+          </td>
+        `;
+
+        itemsBodyEl.appendChild(tr);
+      });
+
+      itemTotalEl.textContent = formatAmount(itemTotal);
+      taxTotalEl.textContent = formatAmount(taxTotal);
+      grandTotalEl.textContent = formatAmount(grandTotal);
+      itemsCountEl.textContent = items.length.toString();
+    }
+
+    function addItem() {
+      const name = itemNameEl.value.trim();
+      const cost = parseFloat(itemCostEl.value);
+      const qty = parseInt(itemQtyEl.value, 10);
+      const tax = parseFloat(itemTaxEl.value);
+
+      if (isNaN(cost) || isNaN(qty) || qty <= 0 || isNaN(tax)) {
+        alert('Please enter valid cost, quantity, and tax.');
+        return;
+      }
+
+      items.push({ name, cost, qty, tax });
+      renderItems();
+
+      itemNameEl.value = '';
+      itemCostEl.value = '';
+      itemQtyEl.value = '1';
+      itemTaxEl.value = tax.toString();
+      itemNameEl.focus();
+    }
+
+    function deleteLast() {
+      if (items.length === 0) return;
+      items.pop();
+      renderItems();
+    }
+
+    function startEditCell(td) {
+      const index = parseInt(td.getAttribute('data-index'), 10);
+      const field = td.getAttribute('data-field');
+      if (isNaN(index) || !field) return;
+
+      const oldValue = td.textContent === '-' ? '' : td.textContent.trim();
+      const input = document.createElement('input');
+      input.type = (field === 'name') ? 'text' : 'number';
+      input.value = oldValue;
+      input.className = 'inline-editor';
+      input.style.width = '100%';
+
+      td.innerHTML = '';
+      td.appendChild(input);
+      input.focus();
+      input.select();
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          finishEditCell(td, input, index, field);
+        } else if (e.key === 'Escape') {
+          renderItems();
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        finishEditCell(td, input, index, field);
+      });
+    }
+
+    function finishEditCell(td, input, index, field) {
+      const raw = input.value.trim();
+      if (field === 'name') {
+        items[index].name = raw;
+      } else {
+        const num = field === 'qty' ? parseInt(raw || '0', 10) : parseFloat(raw || '0');
+        if (field === 'qty') {
+          if (!isNaN(num) && num > 0) {
+            items[index].qty = num;
+          }
+        } else {
+          if (!isNaN(num) && num >= 0) {
+            items[index][field] = num;
+          }
+        }
+      }
+      renderItems();
+    }
+
+    addItemBtn.addEventListener('click', addItem);
+    deleteLastBtn.addEventListener('click', deleteLast);
+
+    itemsBodyEl.addEventListener('click', (e) => {
+      const target = e.target;
+
+      if (target.classList.contains('badge-delete')) {
+        const index = parseInt(target.getAttribute('data-index'), 10);
+        if (!isNaN(index)) {
+          items.splice(index, 1);
+          renderItems();
+        }
+        return;
+      }
+
+      if (target.classList.contains('editable')) {
+        startEditCell(target);
+      }
+    });
+
+    [itemCostEl, itemQtyEl, itemTaxEl, itemNameEl].forEach(el => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          addItem();
+        }
+      });
+    });
+
+    // Global keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Esc: blur item name if focused
+      if (e.key === 'Escape') {
+        if (document.activeElement === itemNameEl) {
+          itemNameEl.blur();
+        }
+      }
+
+      // Delete: delete last item when not typing/editing
+      if (e.key === 'Delete') {
+        const active = document.activeElement;
+        const isInput =
+          active &&
+          (active.tagName === 'INPUT' ||
+           active.tagName === 'TEXTAREA' ||
+           active.isContentEditable);
+
+        if (isInput) return;
+
+        e.preventDefault();
+        deleteLast();
+      }
+    });
+  </script>
+</body>
+</html>
